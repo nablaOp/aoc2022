@@ -8,7 +8,7 @@ defmodule RPS do
   end
 
   def secondGame(fileName) do
-    fileName |> getInput |> Enum.reduce(0, fn play, acc -> acc + (play |> String.split(" ") |> getRoundResultPartTwo |> IO.inspect) end)
+    fileName |> getInput |> Enum.reduce(0, fn play, acc -> acc + (play |> String.split(" ") |> getRoundResultPartTwo) end)
   end
 
   defguard is_draw(play) when play == {"A", "X"} or play == {"B", "Y"} or play == {"C", "Z"}
