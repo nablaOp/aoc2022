@@ -3,29 +3,35 @@ defmodule NoSpace do
     fileName |> File.read!() |> String.split("\n")
   end
 
+  def reducePath(path) do
+    path |> String.split(".") |> :lists.reverse() |> tl |> :lists.reverse() |> Enum.join(".")
+  end
+
   def iterate(fileName) do
-    {left, res} =
+    {left, res, _} =
       fileName
       |> getInput()
       # we have same folder names under different levels
-      |> Enum.reduce({%{}, %{}}, fn l, acc ->
+      |> Enum.reduce({%{}, %{}, ""}, fn l, acc ->
         case l |> String.split(" ") do
           ["$", "cd", dir] when dir != ".." ->
-            IO.inspect(Map.merge(elem(acc, 0), %{dir => 0}))
-            {Map.merge(elem(acc, 0), %{dir => 0}), elem(acc, 1)}
+            path = elem(acc, 2) <> "." <> dir
+            {Map.merge(elem(acc, 0), %{path => 0}), elem(acc, 1), path}
 
           [number, _] when number != "dir" and number != "$" ->
             {Enum.map(elem(acc, 0), fn {k, v} -> {k, v + (Integer.parse(number) |> elem(0))} end)
-             |> Enum.into(%{}), elem(acc, 1)}
+             |> Enum.into(%{}), elem(acc, 1), elem(acc, 2)}
 
           ["$", "cd", ".."] ->
             last = elem(acc, 0) |> Map.keys() |> :lists.reverse() |> hd()
 
             if Map.get(elem(acc, 0), last) < 100_000 do
               {Map.drop(elem(acc, 0), [last]),
-               Map.merge(elem(acc, 1), %{last => Map.get(elem(acc, 0), last)})}
+               Map.merge(elem(acc, 1), %{last => Map.get(elem(acc, 0), last)}),
+               elem(acc, 2) |> reducePath()}
             else
-              {Map.drop(elem(acc, 0), [last]), elem(acc, 1)}
+              {Map.drop(elem(acc, 0), [last]), elem(acc, 1), elem(acc, 2),
+               elem(acc, 2) |> reducePath()}
             end
 
           _ ->
