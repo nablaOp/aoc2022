@@ -7,7 +7,7 @@ defmodule NoSpace do
     path |> String.split(".") |> :lists.reverse() |> tl |> :lists.reverse() |> Enum.join(".")
   end
 
-  def iterate(fileName) do
+  def iterate(fileName, size) do
     {left, res, _} =
       fileName
       |> getInput()
@@ -25,7 +25,7 @@ defmodule NoSpace do
           ["$", "cd", ".."] ->
             last = elem(acc, 0) |> Map.keys() |> :lists.reverse() |> hd()
 
-            if Map.get(elem(acc, 0), last) < 100_000 do
+            if Map.get(elem(acc, 0), last) < size do
               {Map.drop(elem(acc, 0), [last]),
                Map.merge(elem(acc, 1), %{last => Map.get(elem(acc, 0), last)}),
                elem(acc, 2) |> reducePath()}
@@ -45,16 +45,29 @@ defmodule NoSpace do
         left
         |> Map.keys()
         |> Enum.reduce(%{}, fn k, acc ->
-          if Map.get(left, k) < 100_000 do
+          if Map.get(left, k) < size do
             Map.merge(acc, %{k => Map.get(left, k)})
           else
             acc
           end
         end)
       )
+  end
+
+  def get_result(fileName) do
+    res = fileName |> iterate(100_000)
 
     res
     |> Map.keys()
     |> Enum.reduce(0, fn k, acc -> acc + Map.get(res, k) end)
+  end
+
+  def get_resultPartTwo(fileName) do
+    res = fileName |> iterate(100_000_000)
+
+    still_have = 70_000_000 - (res |> Map.values() |> Enum.max())
+    need = 30_000_000 - still_have
+
+    res |> Map.values() |> Enum.filter(fn i -> i >= need end) |> Enum.min()
   end
 end
