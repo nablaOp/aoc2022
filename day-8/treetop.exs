@@ -21,7 +21,7 @@ defmodule TT do
       |> get_matrix()
 
     matrix
-    |> Enum.reduce({0, 0, 0}, fn r, {rres, ri, rj} ->
+    |> Enum.reduce({0, 0, 0}, fn r, {rres, ri, _} ->
       r
       |> Enum.reduce({rres, ri + 1, 0}, fn c, {cres, ci, cj} ->
         # IO.inspect(%{:i => ci - 1, :j => cj, :r => is_high_enough(matrix, ci - 1, cj, c)})
@@ -45,10 +45,9 @@ defmodule TT do
       |> get_matrix()
 
     matrix
-    |> Enum.reduce({0, 0, 0}, fn r, {rres, ri, rj} ->
+    |> Enum.reduce({0, 0, 0}, fn r, {rres, ri, _} ->
       r
       |> Enum.reduce({rres, ri + 1, 0}, fn c, {cres, ci, cj} ->
-        # IO.inspect(%{:i => ci - 1, :j => cj, :r => is_high_enough(matrix, ci - 1, cj, c)})
         new_res =
           how_many_you_see(matrix, ci - 1, cj, c)
           |> Tuple.to_list()
@@ -76,11 +75,9 @@ defmodule TT do
 
   def is_high_enough(m, input_i, input_j, v) do
     m
-    |> Enum.reduce({{true, true, true, true}, 0, 0}, fn r, {rres, ri, rj} ->
+    |> Enum.reduce({{true, true, true, true}, 0, 0}, fn r, {rres, ri, _} ->
       r
       |> Enum.reduce({rres, ri + 1, 0}, fn c, {cres, ci, cj} ->
-        # IO.inspect({ci - 1, cj, c, v})
-
         case {ci - 1, cj} do
           {ti, tj} when ti == input_i and tj == input_j ->
             {cres, ci, cj + 1}
@@ -111,7 +108,7 @@ defmodule TT do
     # IO.inspect(%{:i => input_i, :j => input_j, :v => v})
 
     m
-    |> Enum.reduce({{0, {0, false}, 0, {0, false}}, 0, 0}, fn r, {rres, ri, rj} ->
+    |> Enum.reduce({{0, {0, false}, 0, {0, false}}, 0, 0}, fn r, {rres, ri, _} ->
       r
       |> Enum.reduce({rres, ri + 1, 0}, fn c, {cres, ci, cj} ->
         # IO.inspect({ci - 1, cj, c, v})
@@ -122,9 +119,6 @@ defmodule TT do
 
           {ti, tj} when ti < input_i and tj == input_j and c >= v ->
             {{1, elem(cres, 1), elem(cres, 2), elem(cres, 3)}, ci, cj + 1}
-
-          # {ti, tj} when ti < input_i and tj == input_j and c == v ->
-          #   {{1, elem(cres, 1), elem(cres, 2), elem(cres, 3)}, ci, cj + 1}
 
           {ti, tj} when ti < input_i and tj == input_j ->
             {{elem(cres, 0) + 1, elem(cres, 1), elem(cres, 2), elem(cres, 3)}, ci, cj + 1}
@@ -138,15 +132,6 @@ defmodule TT do
                elem(cres, 3)
              }, ci, cj + 1}
 
-          # {ti, tj}
-          # when ti > input_i and tj == input_j and c == v and cres |> elem(1) |> elem(1) == false ->
-          #   {{
-          #      elem(cres, 0),
-          #      {(cres |> elem(1) |> elem(0)) + 1, true},
-          #      elem(cres, 2),
-          #      elem(cres, 3)
-          #    }, ci, cj + 1}
-
           {ti, tj}
           when ti > input_i and tj == input_j and c >= v and cres |> elem(1) |> elem(1) == false ->
             {{
@@ -158,9 +143,6 @@ defmodule TT do
 
           {ti, tj} when ti == input_i and tj < input_j and c >= v ->
             {{elem(cres, 0), elem(cres, 1), 1, elem(cres, 3)}, ci, cj + 1}
-
-          # {ti, tj} when ti == input_i and tj < input_j and c == v ->
-          #   {{elem(cres, 0), elem(cres, 1), 1, elem(cres, 3)}, ci, cj + 1}
 
           {ti, tj} when ti == input_i and tj < input_j ->
             {{elem(cres, 0), elem(cres, 1), elem(cres, 2) + 1, elem(cres, 3)}, ci, cj + 1}
@@ -174,15 +156,6 @@ defmodule TT do
                {(cres |> elem(3) |> elem(0)) + 1, false}
              }, ci, cj + 1}
 
-          # {ti, tj}
-          # when ti == input_i and tj > input_j and c == v and cres |> elem(3) |> elem(1) == false ->
-          #   {{
-          #      elem(cres, 0),
-          #      elem(cres, 1),
-          #      elem(cres, 2),
-          #      {(cres |> elem(3) |> elem(0)) + 1, true}
-          #    }, ci, cj + 1}
-
           {ti, tj}
           when ti == input_i and tj > input_j and c >= v and cres |> elem(3) |> elem(1) == false ->
             {{
@@ -195,12 +168,10 @@ defmodule TT do
           _ ->
             {cres, ci, cj + 1}
         end
-
-        # |> IO.inspect()
       end)
     end)
     |> elem(0)
-
-    # |> IO.inspect()
   end
 end
+
+TT.get_result_partTwo("input-0.txt") |> IO.inspect()
