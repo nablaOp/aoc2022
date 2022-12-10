@@ -11,8 +11,8 @@ defmodule RR do
     s |> tl |> hd |> Integer.parse() |> elem(0)
   end
 
-  def save_move(res, pos, skip) do
-    if !Map.has_key?(res, pos) and !skip do
+  def save_move(res, pos) do
+    if !Map.has_key?(res, pos) do
       Map.merge(res, %{pos => true})
     else
       res
@@ -50,32 +50,97 @@ defmodule RR do
     fileName
     |> get_input()
     |> Enum.map(&get_move/1)
-    |> calc_part_two({{0, 0}, Enum.map(1..10, fn _ -> {0, 0} end), %{}})
+    |> calc_part_two({{2000, 2000}, Enum.map(1..9, fn _ -> {0, 0} end), %{}})
     |> elem(2)
     |> Map.keys()
     |> Enum.count()
   end
 
-  def make_one_step(dir, h_shift, skip_save, {{h_i, h_j}, {t_i, t_j}, res}) do
+  def make_one_step(dir, {{h_i, h_j}, {t_i, t_j}, res}) do
     case dir do
       r when r == "R" ->
         t_pos = get_t_pos(r, h_i + 1, h_j, t_i, t_j)
-        {{h_i + h_shift, h_j}, t_pos, save_move(res, t_pos, skip_save)}
+        {{h_i + 1, h_j}, t_pos, save_move(res, t_pos)}
 
       l when l == "L" ->
         t_pos = get_t_pos(l, h_i - 1, h_j, t_i, t_j)
-        {{h_i - h_shift, h_j}, t_pos, save_move(res, t_pos, skip_save)}
+        {{h_i - 1, h_j}, t_pos, save_move(res, t_pos)}
 
       u when u == "U" ->
         t_pos = get_t_pos(u, h_i, h_j + 1, t_i, t_j)
-        {{h_i, h_j + h_shift}, t_pos, save_move(res, t_pos, skip_save)}
+        {{h_i, h_j + 1}, t_pos, save_move(res, t_pos)}
 
       d when d == "D" ->
         t_pos = get_t_pos(d, h_i, h_j - 1, t_i, t_j)
-        {{h_i, h_j - h_shift}, t_pos, save_move(res, t_pos, skip_save)}
+        {{h_i, h_j - 1}, t_pos, save_move(res, t_pos)}
 
       _ ->
         {{h_i, h_j}, {t_i, t_j}, res}
+    end
+  end
+
+  def make_head_step(dir, {{h_i, h_j}, {t_i, t_j}}) do
+    case dir do
+      r when r == "R" ->
+        t_pos = get_t_pos(r, h_i + 1, h_j, t_i, t_j)
+        {{h_i + 1, h_j}, t_pos}
+
+      l when l == "L" ->
+        t_pos = get_t_pos(l, h_i - 1, h_j, t_i, t_j)
+        {{h_i - 1, h_j}, t_pos}
+
+      u when u == "U" ->
+        t_pos = get_t_pos(u, h_i, h_j + 1, t_i, t_j)
+        {{h_i, h_j + 1}, t_pos}
+
+      d when d == "D" ->
+        t_pos = get_t_pos(d, h_i, h_j - 1, t_i, t_j)
+        {{h_i, h_j - 1}, t_pos}
+
+      _ ->
+        {{h_i, h_j}, {t_i, t_j}}
+    end
+  end
+
+  def make_middle_step(dir, {{h_i, h_j}, {t_i, t_j}}) do
+    case dir do
+      r when r == "R" ->
+        get_t_pos(r, h_i, h_j, t_i, t_j)
+
+      l when l == "L" ->
+        get_t_pos(l, h_i, h_j, t_i, t_j)
+
+      u when u == "U" ->
+        get_t_pos(u, h_i, h_j, t_i, t_j)
+
+      d when d == "D" ->
+        get_t_pos(d, h_i, h_j, t_i, t_j)
+
+      _ ->
+        {t_i, t_j}
+    end
+  end
+
+  def make_tail_step(dir, {{h_i, h_j}, {t_i, t_j}, res}) do
+    case dir do
+      r when r == "R" ->
+        t_pos = get_t_pos(r, h_i, h_j, t_i, t_j)
+        {t_pos, save_move(res, t_pos)}
+
+      l when l == "L" ->
+        t_pos = get_t_pos(l, h_i, h_j, t_i, t_j)
+        {t_pos, save_move(res, t_pos)}
+
+      u when u == "U" ->
+        t_pos = get_t_pos(u, h_i, h_j, t_i, t_j)
+        {t_pos, save_move(res, t_pos)}
+
+      d when d == "D" ->
+        t_pos = get_t_pos(d, h_i, h_j, t_i, t_j)
+        {t_pos, save_move(res, t_pos)}
+
+      _ ->
+        {{t_i, t_j}, res}
     end
   end
 
@@ -84,45 +149,45 @@ defmodule RR do
     |> Enum.reduce(input, fn s, acc ->
       1..(s |> get_steps)
       |> Enum.reduce(acc, fn _, acc ->
-        make_one_step(s |> hd, 1, false, acc)
+        make_one_step(s |> hd, acc)
       end)
     end)
   end
 
   def calc_part_two(moves, input) do
     moves
-    |> Enum.reduce(input, fn s, acc ->
+    |> Enum.reduce(input, fn s, acc0 ->
       1..(s |> get_steps)
-      |> Enum.reduce(acc, fn _, acc ->
-        1..10
+      |> Enum.reduce(acc0, fn _, acc ->
+        1..3
         |> Enum.reduce(acc, fn step, {{h_i, h_j}, t, res} ->
           case step do
             1 ->
-              n = make_one_step(s |> hd, 1, true, {{h_i, h_j}, Enum.at(t, step - 1), res})
+              n = make_head_step(s |> hd, {{h_i, h_j}, Enum.at(t, step - 1)})
 
-              {elem(n, 0), List.replace_at(t, step - 1, elem(n, 1)), elem(n, 2)} |> IO.inspect()
+              IO.inspect(elem(n, 0))
 
-            10 ->
+              {elem(n, 0), List.replace_at(t, step - 1, elem(n, 1)), res}
+
+            2 ->
               n =
-                make_one_step(
+                make_tail_step(
                   s |> hd,
-                  0,
-                  false,
-                  {{h_i, h_j}, Enum.at(t, step - 1), res}
-                )
-
-              {elem(n, 0), List.replace_at(t, step - 1, elem(n, 1)), elem(n, 2)}
-
-            _ ->
-              n =
-                make_one_step(
-                  s |> hd,
-                  0,
-                  true,
                   {Enum.at(t, step - 2), Enum.at(t, step - 1), res}
                 )
 
-              {elem(n, 0), List.replace_at(t, step - 1, elem(n, 1)), elem(n, 2)}
+              IO.inspect(elem(n, 1))
+
+              {{h_i, h_j}, List.replace_at(t, step - 1, elem(n, 0)), elem(n, 1)}
+
+            _ ->
+              n =
+                make_middle_step(
+                  s |> hd,
+                  {Enum.at(t, step - 2), Enum.at(t, step - 1)}
+                )
+
+              {{h_i, h_j}, List.replace_at(t, step - 1, n), res}
           end
         end)
       end)
