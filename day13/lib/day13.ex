@@ -29,7 +29,13 @@ defmodule Day13 do
       |> Enum.map(fn {l, r} -> {l |> parse_to_array, r |> parse_to_array} end)
 
     res
-    # IO.write("output.txt", inspect(res))
+    # |> Enum.each(fn {x, y} ->
+    #   File.open!("output.txt", [:write], fn file ->
+    #     IO.inspect(file, x, charlists: :as_lists, limit: :infinity)
+    #     IO.inspect(file, y, charlists: :as_lists, limit: :infinity)
+    #     IO.inspect(file, "", pretty: true)
+    #   end)
+    # end)
   end
 
   def parse_to_array(s) do
@@ -94,8 +100,11 @@ defmodule Day13 do
     l_len = length(l)
     r_len = length(r)
 
-    case l_len do
-      0 ->
+    case {l_len, r_len} do
+      {0, 0} ->
+        :continue
+
+      {0, _} ->
         true
 
       _ ->
