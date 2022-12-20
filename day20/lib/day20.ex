@@ -24,9 +24,9 @@ defmodule Day20 do
 
     final_zero = final_map |> Map.fetch!(zero)
 
-    f = find_number(final_data, length, final_zero, 1000)
-    s = find_number(final_data, length, final_zero, 2000)
-    t = find_number(final_data, length, final_zero, 3000)
+    f = find_number(final_data, length, final_zero, 1000) |> IO.inspect()
+    s = find_number(final_data, length, final_zero, 2000) |> IO.inspect()
+    t = find_number(final_data, length, final_zero, 3000) |> IO.inspect()
 
     f + s + t
   end
