@@ -11,10 +11,7 @@ defmodule Day21Test do
   end
 
   test "parse line" do
-    assert Day21.parse_line("root: pppw + sjmn") == %{
-             :name => "root",
-             :operation => {"pppw", "+", "sjmn"}
-           }
+    assert Day21.parse_line("root: pppw + sjmn") == %{"root" => {"pppw", "+", "sjmn"}}
 
     assert Day21.parse_line("dbpl: 5") == %{"dbpl" => 5}
   end
@@ -22,5 +19,9 @@ defmodule Day21Test do
   test "build" do
     input = %{"root" => {3, "+", "aaa"}, "aaa" => 3}
     assert Day21.build(input) == {3, "+", 3}
+  end
+
+  test "parse line for second part" do
+    assert Day21Two.parse_line("root: pppw + sjmn") == %{"root" => {"pppw", "=", "sjmn"}}
   end
 end
