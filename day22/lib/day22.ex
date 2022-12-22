@@ -147,7 +147,7 @@ defmodule Day22 do
           "R" ->
             {pos, calc_new_direction(direction, "R")}
 
-          # |> IO.inspect(label: "R")
+          # |> IO.inspect(label: "R from " <> to_string(direction))
 
           "L" ->
             {pos, calc_new_direction(direction, "L")}
@@ -156,7 +156,11 @@ defmodule Day22 do
 
           count ->
             {perform_steps(pos, map, direction, count), direction}
-            # |> IO.inspect(label: "steps")
+            |> IO.inspect(
+              label:
+                to_string(count) <>
+                  " steps from {" <> to_string(pos.x) <> ", " <> to_string(pos.y) <> "}"
+            )
         end
       end)
       |> IO.inspect(label: "final pos")

@@ -85,4 +85,23 @@ defmodule Day22Test do
 
     assert Day22.perform_step(%{:x => 8, :y => 0}, map, :up) == {:ok, %{:x => 8, :y => 11}}
   end
+
+  test "big data. edge cases" do
+    {map, path} = "input-1.txt" |> Day22.read_file()
+
+    assert Day22.perform_step(%{:x => 50, :y => 0}, map, :up) == {:wall, %{:x => 50, :y => 0}}
+    assert Day22.perform_step(%{:x => 51, :y => 0}, map, :up) == {:ok, %{:x => 51, :y => 149}}
+    assert Day22.perform_step(%{:x => 50, :y => 0}, map, :left) == {:ok, %{:x => 149, :y => 0}}
+    assert Day22.perform_step(%{:x => 0, :y => 199}, map, :down) == {:ok, %{:x => 0, :y => 100}}
+    assert Day22.perform_step(%{:x => 99, :y => 50}, map, :right) == {:ok, %{:x => 50, :y => 50}}
+    assert Day22.perform_step(%{:x => 50, :y => 50}, map, :left) == {:ok, %{:x => 99, :y => 50}}
+
+    assert Day22.perform_step(%{:x => 88, :y => 35}, map, :right) ==
+             {:wall, %{:x => 88, :y => 35}}
+
+    assert Day22.perform_step(%{:x => 88, :y => 35}, map, :down) == {:wall, %{:x => 88, :y => 35}}
+    assert Day22.perform_step(%{:x => 88, :y => 35}, map, :left) == {:ok, %{:x => 87, :y => 35}}
+    assert Day22.perform_step(%{:x => 88, :y => 35}, map, :up) == {:ok, %{:x => 88, :y => 34}}
+    assert Day22.perform_step(%{:x => 49, :y => 199}, map, :down) == {:ok, %{:x => 49, :y => 100}}
+  end
 end
