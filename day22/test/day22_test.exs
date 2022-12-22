@@ -104,4 +104,14 @@ defmodule Day22Test do
     assert Day22.perform_step(%{:x => 88, :y => 35}, map, :up) == {:ok, %{:x => 88, :y => 34}}
     assert Day22.perform_step(%{:x => 49, :y => 199}, map, :down) == {:ok, %{:x => 49, :y => 100}}
   end
+
+  test "errors" do
+    {map, path} = "input-1.txt" |> Day22.read_file()
+
+    {res, mm} = Day22.perform_steps(%{:x => 15, :y => 116}, map, :up, 17, map)
+    assert res == %{:x => 15, :y => 199}
+
+    file_name = "output/output-0-test.txt"
+    File.write!(file_name, mm |> Enum.join("\n"))
+  end
 end

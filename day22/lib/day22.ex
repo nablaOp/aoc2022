@@ -3,13 +3,15 @@ defmodule Day22 do
   Documentation for `Day22`.
   """
 
-  def perform_steps(pos, map, facing, count) do
+  def perform_steps(pos, map, facing, count, mm) do
     # IO.inspect({pos, facing, count}, label: "perfom specfic steps")
 
+    mm = mm |> update_map(pos, facing)
+
     case {count - 1, perform_step(pos, map, facing)} do
-      {0, {_, new_pos}} -> new_pos
-      {cnt, {:ok, new_pos}} -> perform_steps(new_pos, map, facing, cnt)
-      {_, {:wall, new_pos}} -> new_pos
+      {0, {_, new_pos}} -> {new_pos, mm}
+      {cnt, {:ok, new_pos}} -> perform_steps(new_pos, map, facing, cnt, mm)
+      {_, {:wall, new_pos}} -> {new_pos, mm}
     end
   end
 
@@ -89,7 +91,8 @@ defmodule Day22 do
 
     cond do
       next_y == nil ->
-        map |> Enum.reverse() |> Enum.find_index(&((&1 |> Enum.at(x)) in [".", "#"]))
+        length(map) - 1 -
+          (map |> Enum.reverse() |> Enum.find_index(&((&1 |> Enum.at(x)) in [".", "#"])))
 
       len == 0 ->
         length(map) - next_y - 1
@@ -138,34 +141,49 @@ defmodule Day22 do
 
     starting_point = map |> find_starting_point() |> IO.inspect(label: "starting point")
 
-    {pos, direction} =
+    {pos, direction, _, _} =
       path
-      |> Enum.reduce({starting_point, :right}, fn p, {pos, direction} ->
+      |> Enum.reduce({starting_point, :right, map, 0}, fn p, {pos, direction, mm, idx} ->
         # IO.inspect({p, pos, direction}, label: "process step")
 
         case p do
           "R" ->
-            {pos, calc_new_direction(direction, "R")}
+            {pos, calc_new_direction(direction, "R"), mm, idx + 1}
 
           # |> IO.inspect(label: "R from " <> to_string(direction))
 
           "L" ->
-            {pos, calc_new_direction(direction, "L")}
+            {pos, calc_new_direction(direction, "L"), mm, idx + 1}
 
           # |> IO.inspect(label: "L")
 
           count ->
-            {perform_steps(pos, map, direction, count), direction}
-            |> IO.inspect(
-              label:
-                to_string(count) <>
-                  " steps from {" <> to_string(pos.x) <> ", " <> to_string(pos.y) <> "}"
-            )
+            {new_pos, mm} = perform_steps(pos, map, direction, p, mm)
+            file_name = "output/output-" <> to_string(idx + 1) <> ".txt"
+            # File.write!(file_name, mm |> Enum.join("\n"))
+            {new_pos, direction, mm, idx + 1}
+            # |> IO.inspect(
+            #   label:
+            #     to_string(count) <>
+            #       " steps from {" <> to_string(pos.x) <> ", " <> to_string(pos.y) <> "}"
+            # )
         end
       end)
       |> IO.inspect(label: "final pos")
 
     (pos.y + 1) * 1000 + 4 * (pos.x + 1) + calc_direction_weight(direction)
+  end
+
+  def update_map(map, pos, direction) do
+    s =
+      case direction do
+        :right -> ">"
+        :left -> "<"
+        :up -> "^"
+        :down -> "v"
+      end
+
+    map |> List.replace_at(pos.y, map |> Enum.at(pos.y) |> List.replace_at(pos.x, s))
   end
 
   def calc_direction_weight(direction) do

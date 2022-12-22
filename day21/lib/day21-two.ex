@@ -4,11 +4,16 @@ defmodule Day21Two do
   """
 
   def get_result(file \\ "input-0.txt") do
-    file
-    |> get_input()
-    |> build()
-    |> IO.inspect()
-    |> apply_operation()
+    operations = file |> get_input() |> build()
+
+    # |> IO.inspect()
+    1..50_000_000
+    |> Enum.reduce(0, fn i, acc ->
+      case apply_operation(operations, i) and acc > 0 do
+        true -> acc
+        _ -> i
+      end
+    end)
   end
 
   def get_input(file) do
@@ -51,14 +56,16 @@ defmodule Day21Two do
     end
   end
 
-  def apply_operation({left, operand, right}) when operand == "=" do
-    left_result = apply_operation(left)
-    right_result = apply_operation(right)
+  def apply_operation({left, operand, right}, x) when operand == "=" do
+    left_result = apply_operation(left, x)
+    right_result = apply_operation(right, x)
 
-    case left_result |> is_number() do
-      true -> apply_backward_operation(right_result, left_result)
-      _ -> apply_backward_operation(left_result, right_result)
-    end
+    left_result == right_result
+
+    # case left_result |> is_number() do
+    #   true -> apply_backward_operation(right_result, left_result)
+    #   _ -> apply_backward_operation(left_result, right_result)
+    # end
   end
 
   def apply_backward_operation({left, operand, right}, number) when operand == "*" do
@@ -73,7 +80,6 @@ defmodule Day21Two do
         number / num
 
       {operation, num} when num |> is_integer() ->
-        IO.inspect({number, num}, label: "/")
         apply_backward_operation(operation, number / num)
     end
   end
@@ -126,17 +132,19 @@ defmodule Day21Two do
     end
   end
 
-  def apply_operation({left, operand, right}) when operand != "=" do
+  def apply_operation({left, operand, right}, x) when operand != "=" do
     left =
-      case left |> is_integer() do
-        true -> left
-        _ -> apply_operation(left)
+      case left do
+        num when num |> is_integer() -> num
+        n_x when n_x == "X" -> x
+        _ -> apply_operation(left, x)
       end
 
     right =
-      case right |> is_integer() do
-        true -> right
-        _ -> apply_operation(right)
+      case right do
+        num when num |> is_integer() -> num
+        n_x when n_x == "X" -> x
+        _ -> apply_operation(right, x)
       end
 
     case left |> is_integer() and right |> is_integer() do

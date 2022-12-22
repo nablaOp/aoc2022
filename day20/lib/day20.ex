@@ -7,8 +7,9 @@ defmodule Day20 do
       file
       |> get_input()
 
+    zero |> IO.inspect(label: "zero")
     values = initial |> Map.values()
-    length = values |> Enum.count()
+    length = values |> Enum.count() |> IO.inspect(label: "length")
 
     {final_map, final_data} =
       values
@@ -19,10 +20,12 @@ defmodule Day20 do
          |> Enum.reduce({map, 0}, fn key, {map, idx} ->
            {map |> Map.put(key, idx), idx + 1}
          end)
+         |> IO.inspect(label: "updated map")
          |> elem(0), new_array}
       end)
+      |> IO.inspect(label: "final")
 
-    final_zero = final_map |> Map.fetch!(zero)
+    final_zero = final_map |> Map.fetch!(zero) |> IO.inspect(label: "final zero")
 
     f = find_number(final_data, length, final_zero, 1000) |> IO.inspect()
     s = find_number(final_data, length, final_zero, 2000) |> IO.inspect()
@@ -31,6 +34,11 @@ defmodule Day20 do
     f + s + t
   end
 
+  # def find_number(data, length, start, pos) do
+  #   pos = start + pos
+  #   data |> Enum.at(pos) |> elem(1)
+  # end
+
   def find_number(data, length, start, pos) do
     pos = pos - (length - 1 - start)
     # |> IO.inspect(label: "fixed pos")
@@ -38,7 +46,7 @@ defmodule Day20 do
   end
 
   def move(data, length, idx) do
-    # IO.inspect(data, label: "old data")
+    IO.inspect(data, label: "old data")
     item = data |> Enum.at(idx)
     # |> IO.inspect(label: "number")
     number = item |> elem(1)
@@ -85,8 +93,9 @@ defmodule Day20 do
     # |> IO.inspect(label: "without element")
 
     {left, right} = arr |> Enum.split(new_pos)
-    left ++ [item] ++ right
-    # |> IO.inspect(label: "new data")
+
+    (left ++ [item] ++ right)
+    |> IO.inspect(label: "new data")
   end
 
   def get_input(file) do
